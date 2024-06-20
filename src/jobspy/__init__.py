@@ -10,6 +10,7 @@ from .scrapers.indeed import IndeedScraper
 from .scrapers.ziprecruiter import ZipRecruiterScraper
 from .scrapers.glassdoor import GlassdoorScraper
 from .scrapers.linkedin import LinkedInScraper
+from .scrapers.naukri import NaukriScraper
 from .scrapers import ScraperInput, Site, JobResponse, Country
 from .scrapers.exceptions import (
     LinkedInException,
@@ -48,6 +49,7 @@ def scrape_jobs(
         Site.INDEED: IndeedScraper,
         Site.ZIP_RECRUITER: ZipRecruiterScraper,
         Site.GLASSDOOR: GlassdoorScraper,
+        Site.NAUKRI: NaukriScraper,
     }
     set_logger_level(verbose)
 
@@ -143,7 +145,8 @@ def scrape_jobs(
             job_data["site"] = site
             job_data["company"] = job_data["company_name"]
             job_data["job_type"] = (
-                ", ".join(job_type.value[0] for job_type in job_data["job_type"])
+                ", ".join(job_type.value[0]
+                          for job_type in job_data["job_type"])
                 if job_data["job_type"]
                 else None
             )

@@ -17,6 +17,7 @@ class Site(Enum):
     INDEED = "indeed"
     ZIP_RECRUITER = "zip_recruiter"
     GLASSDOOR = "glassdoor"
+    NAUKRI = "naukri"
 
 
 class ScraperInput(BaseModel):
