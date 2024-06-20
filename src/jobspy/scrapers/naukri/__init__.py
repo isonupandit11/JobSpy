@@ -4,11 +4,11 @@ jobspy.scrapers.naukri
 
 This module contains routines to scrape job listings from Naukri.com.
 """
-
 import json
 from typing import Optional, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+import requests
 
 # Import utilities and base classes for scraping
 from .. import Scraper, ScraperInput, Site
@@ -48,7 +48,9 @@ class NaukriScraper(Scraper):
         self.jobs_per_page = 20  # Max number of jobs to fetch per page
         self.seen_urls = set()  # To avoid processing duplicates
         self.scraper_input = None  # Initialize scraper_input
-        self.session = create_session(proxies=proxies)
+        self.proxies = proxies  # Store proxies
+        self.session = create_session(
+            proxies=proxies, is_tls=False, clear_cookies=True)
 
     def fetch_jobs_page(self, scraper_input: ScraperInput, page_num: int) -> List[JobPost]:
         """
@@ -85,8 +87,10 @@ class NaukriScraper(Scraper):
                     if job_post:
                         jobs.append(job_post)
         except Exception as e:
-            err = f"Failed to fetch jobs from Naukri.com. Error: {e}"
-            logger.error(err)
+            if "Proxy responded with" in str(e):
+                logger.error(f"Naukri: Bad proxy")
+            else:
+                logger.error(f"Naukri: {str(e)}")
         return jobs
 
     def process_job(self, job_data) -> Optional[JobPost]:
@@ -245,10 +249,20 @@ class NaukriScraper(Scraper):
         :return: A dictionary of request headers.
         """
         return {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36',
-            'Systemid': 'Naukri',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Clientid': 'd3skt0p',
-            'Appid': '109',
+            'accept': 'application/json',
+            'accept-language': 'en-US,en;q=0.9',
+            'appid': '109',
+            'clientid': 'd3skt0p',
+            'content-type': 'application/json',
+            'gid': 'LOCATION,INDUSTRY,EDUCATION,FAREA_ROLE',
+            'priority': 'u=1, i',
+            'referer': 'https://www.naukri.com/dot-net-jobs?k=.net',
+            'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-origin',
+            'systemid': 'Naukri',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
         }

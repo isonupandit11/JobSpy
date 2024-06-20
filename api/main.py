@@ -102,6 +102,12 @@ async def scrape_jobs_task(job_id: str, site_names: List[str], results_wanted: i
     # Distribute results evenly across sites
     results_per_site = math.ceil(results_wanted / total_sites)
 
+    # Configure your proxies
+    proxies = {
+        'http': 'http://brd-customer-hl_50ca6c70-zone-residential_proxy1:i841o03n302x@brd.superproxy.io:22225',
+        'https': 'http://brd-customer-hl_50ca6c70-zone-residential_proxy1:i841o03n302x@brd.superproxy.io:22225'
+    }
+
     for site_name in site_names:
         offset = 0  # Reset `offset` for each site
         retries_left = max_retries
@@ -122,8 +128,7 @@ async def scrape_jobs_task(job_id: str, site_names: List[str], results_wanted: i
                     results_wanted=results_in_each_iteration,
                     country_indeed=country_indeed,
                     offset=offset,
-                    proxies=["38.154.227.167:5868", "185.199.229.156:7492", "185.199.228.220:7300", "185.199.231.45:8382", "188.74.210.207:6286",
-                             "188.74.183.10:8279", "188.74.210.21:6100", "45.155.68.129:8133", "154.95.36.199:6893", "45.94.47.66:8110"],
+                    proxies=proxies,
                     hours_old=hours_old
                 )
 
